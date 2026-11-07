@@ -1,0 +1,44 @@
+[book]
+title = "mdbook-components"
+authors = ["CompEng0001"]
+language = "en"
+src = "src"
+
+[output.html]
+git-repository-url = "https://github.com/compeng0001/mdbook-gitinfo"
+edit-url-template = "https://github.com//compeng0001/mdbook-gitinfo/edit/main/{path}"
+additional-css = [ "theme/gitinfo.css", "theme/css/mdbook-components-devicon.css", "theme/css/mdbook-components.css"]
+additional-js = ["theme/js/mdbook-components-icons.js", "theme/js/mdbook-components.js"]
+
+[output.html.print]
+enable = false
+
+[preprocessor.components]
+renderers = ["html"]
+
+[preprocessor.components.footer]
+enable = true
+text = "Created with ❤️ by [CompEng0001](https://github.com/CompEng0001)"
+align = "center"
+separator = true
+
+[preprocessor.gitinfo]
+enable = true
+header = true
+footer = true
+message.header = "Last updated: <em>{{date}}</em>"
+message.footer = "branch: {{branch}} {{sep}} commit: {{hash}} {{sep}} tag: {{tag}}"
+align.header = "center"
+align.footer = "center"
+margin.header.top = "2em"
+margin.header.bottom = "0em"
+margin.footer = ["0em", "0", "0", "0"]
+font-size = "0.8em"
+separator = "||"
+date-format = "%A %d %B %Y"
+time-format = "@ %H:%M:%S"
+branch = "main"
+hyperlink = true
+contributors = true
+after= [ "components" ]
+

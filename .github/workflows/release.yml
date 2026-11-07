@@ -1,0 +1,50 @@
+name: Release mdbook-
+
+on:
+  push:
+    tags:
+      - "v*"
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Add musl target
+        run: rustup target add x86_64-unknown-linux-musl
+
+      - name: Build statically linked binary (musl)
+        run: cargo build --release --target x86_64-unknown-linux-musl
+
+      - name: Prepare dist
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp target/x86_64-unknown-linux-musl/release/mdbook-components dist/mdbook-components-linux
+          cd dist
+          tar -czf mdbook-components-linux.tar.gz mdbook-components-linux
+          sha256sum mdbook-components-linux > mdbook-components-linux_sha256sum.txt
+          sha256sum mdbook-components-linux.tar.gz > mdbook-components-linux.tar.gz_sha256sum.txt
+
+      - name: Upload release artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/mdbook-components-linux
+            dist/mdbook-components-linux.tar.gz
+            dist/mdbook-components-linux_sha256sum.txt
+            dist/mdbook-components-linux.tar.gz_sha256sum.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+
+      - name: Move 'latest' tag to this release
+        uses: EndBug/latest-tag@latest
+        with:
+            ref: latest
