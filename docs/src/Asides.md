@@ -31,6 +31,10 @@ Run `cargo fmt --check` before opening a pull request.
 `cargo check` type-checks a crate without producing its usual final executable, so it is often faster during development.
 :::
 
+::: example title="A mere example"
+This is an exmaple, a mere sample
+:::
+
 ::: success title="Build complete"
 The project compiled successfully and all tests passed.
 :::
@@ -47,6 +51,7 @@ The program panics when the input is empty. Add a regression test and investigat
 Never commit private keys or API tokens to version control.
 :::
 
+
 :::
 ::: tab label="Markdown" icon=markdown
 
@@ -61,6 +66,10 @@ Run `cargo fmt --check` before opening a pull request.
 
 ::: explanation title="Why does this happen?"
 `cargo check` type-checks a crate without producing its usual final executable, so it is often faster during development.
+:::
+
+::: example title="A mere example"
+This is an exmaple, a mere sample
 :::
 
 ::: success title="Build complete"
@@ -117,3 +126,24 @@ The icon is intentionally hidden in this example.
 ## Aliases
 
 `info` maps to **note**, `warning` to **caution**, and `error` or `important` to **danger**. `success`, `explanation` and `bug` are distinct styles, not aliases.
+
+## Nested components
+
+Ordinary components can be nested inside other components:
+
+````markdown
+::: note title="Preparation"
+Review the setup.
+
+::: important title="Hardware safety"
+Check the wiring before powering the board.
+:::
+
+:::
+````
+
+To diagnose a mismatched closing directive, an optional explicit closer may be
+used (`::: /important`, `::: /note`). Plain `:::` remains supported. The parser
+reports opening lines and nesting depth for unclosed components. Because plain
+`:::` carries no component name, it cannot always identify which intended
+opening it should match if an intermediate closer is missing.

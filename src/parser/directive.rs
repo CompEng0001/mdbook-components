@@ -1,7 +1,7 @@
 // Extracted from the original main.rs without changing the implementation.
 
 
-pub(crate) const KINDS: &[&str] = &["terminal", "output", "error", "warning", "important", "tip", "note", "goal", "example", "exercise", "info", "success", "code", "caution", "explanation", "bug", "danger", "hero", "column", "features", "feature", "steps", "filetree", "tabs", "tab"];
+pub(crate) const KINDS: &[&str] = &["terminal", "output", "error", "warning", "important", "tip", "note", "goal", "example", "exercise", "info", "success", "code", "caution", "explanation", "bug", "danger", "hero", "column", "features", "feature", "steps", "filetree", "tabs", "tab", "image"];
 
 #[derive(Debug)]
 pub(crate) struct Directive {
@@ -56,7 +56,8 @@ pub(crate) fn attribute(attrs: &str, key: &str) -> Option<String> {
 // Inline, dependency-free line icons. Stroke follows the selected mdBook theme.
 pub(crate) fn component_icon(kind: &str) -> &'static str {
     let drawing = match kind {
-        "note" | "info" => "<circle cx='12' cy='12' r='10'/><path d='M12 16v-4m0-4h.01'/>",
+        "note" => "<rect x='4' y='2' width='16' height='20' rx='2'/><path d='M8 7h8M8 11h8M8 15h6'/>",
+        "info" => "<circle cx='12' cy='12' r='10'/><path d='M12 16v-4m0-4h.01'/>",
         "explanation" => "<circle cx='10.8' cy='10.8' r='7.3'/><path d='m16.2 16.2 5 5'/>",
         "tip" => "<path d='M9 18h6m-5 4h4M8 14c-1.5-1.2-2.5-3-2.5-5a6.5 6.5 0 0 1 13 0c0 2-1 3.8-2.5 5-.8.7-1 1.6-1 2H9c0-.4-.2-1.3-1-2Z'/>",
         "important" => "<path d='M12 2 3 13h8l-1 9 11-12h-8l1-8Z'/>",
@@ -70,7 +71,7 @@ pub(crate) fn component_icon(kind: &str) -> &'static str {
         "code" => "<path d='m8 8-4 4 4 4m8-8 4 4-4 4m-3-12-2 16'/>",
         "steps" => "<path d='M4 6h2m4 0h10M4 12h2m4 0h10M4 18h2m4 0h10'/>",
         "filetree" => "<path d='M3 7h6l2 2h10v11H3z'/>",
-        "example" => "<path d='M4 4h16v16H4zM8 8h8m-8 4h8m-8 4h4'/>",
+        "example" => "<path d='M12 7c-3-2-6-2-10-1v13c4-1 7-1 10 1m0-13c3-2 6-2 10-1v13c-4-1-7-1-10 1m0-13v13'/>",
         _ => "<circle cx='12' cy='12' r='10'/>",
     };
     // svg assembled from fixed static fragments, not user-controlled markup.

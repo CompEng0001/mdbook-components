@@ -112,6 +112,9 @@ pub(crate) fn feature_icon(name: &str) -> &'static str {
 }
 
 // Decorative, self-contained Aside icons; no legacy workbook-component markup.
+pub(crate) const ASIDE_ICON_NOTEPAD: &str = "<span class=\"mdc-aside__icon\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"5\" y=\"2\" width=\"15\" height=\"20\" rx=\"2\"/><path d=\"M9 7h7M9 11h7M9 15h5M3 6h4M3 11h4M3 16h4\"/></svg></span>";
+pub(crate) const ASIDE_ICON_BOOK: &str = "<span class=\"mdc-aside__icon\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 7c-3-2-6-2-10-1v13c4-1 7-1 10 1m0-13c3-2 6-2 10-1v13c-4-1-7-1-10 1m0-13v13\"/></svg></span>";
+pub(crate) const ASIDE_ICON_IMPORTANT: &str = "<span class=\"mdc-aside__icon\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v8M12 18h.01\"/></svg></span>";
 pub(crate) const ASIDE_ICON_NOTE: &str = "<span class=\"mdc-aside__icon\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 16v-4m0-4h.01\"/></svg></span>";
 pub(crate) const ASIDE_ICON_TIP: &str = "<span class=\"mdc-aside__icon\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 18h6m-5 4h4M8 14c-1.5-1.2-2.5-3-2.5-5a6.5 6.5 0 0 1 13 0c0 2-1 3.8-2.5 5-.8.7-1 1.6-1 2H9c0-.4-.2-1.3-1-2Z\"/></svg></span>";
 pub(crate) const ASIDE_ICON_CAUTION: &str = "<span class=\"mdc-aside__icon\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m10.3 3.9-8.2 14a2 2 0 0 0 1.7 3h16.4a2 2 0 0 0 1.7-3l-8.2-14a2 2 0 0 0-3.4 0Z\"/><path d=\"M12 9v4m0 4h.01\"/></svg></span>";
@@ -123,6 +126,9 @@ pub(crate) const ASIDE_ICON_DANGER: &str = "<span class=\"mdc-aside__icon\" aria
 pub(crate) fn aside_icon(kind: &str) -> &'static str {
     match kind {
         "tip" => ASIDE_ICON_TIP,
+        "note" => ASIDE_ICON_NOTEPAD,
+        "important" => ASIDE_ICON_IMPORTANT,
+        "example" => ASIDE_ICON_BOOK,
         "success" => ASIDE_ICON_SUCCESS,
         "explanation" => ASIDE_ICON_EXPLANATION,
         "bug" => ASIDE_ICON_BUG,

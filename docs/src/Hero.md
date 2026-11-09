@@ -197,3 +197,6 @@ A Hero with `::: column` children must contain **exactly two columns** and no ad
 ## Authoring guidance
 
 Use a single-column Hero for a short introduction. Prefer a two-column Hero when the secondary content is genuinely complementary, such as a quick reference, diagram, link collection, or independently generated QR code. Avoid putting lengthy instructional sequences in the narrow column; use the [Steps](EXAMPLE_3.md) component below the Hero instead.
+
+When no `::: column` children are provided, the hero content takes the full
+available width. Two explicit columns retain the existing responsive grid.

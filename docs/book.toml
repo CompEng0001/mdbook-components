@@ -5,8 +5,8 @@ language = "en"
 src = "src"
 
 [output.html]
-git-repository-url = "https://github.com/compeng0001/mdbook-gitinfo"
-edit-url-template = "https://github.com//compeng0001/mdbook-gitinfo/edit/main/{path}"
+git-repository-url = "https://github.com/compeng0001/mdbook-components"
+edit-url-template = "https://github.com//compeng0001/mdbook-components/edit/main/{path}"
 additional-css = [ "theme/gitinfo.css", "theme/css/mdbook-components-devicon.css", "theme/css/mdbook-components.css"]
 additional-js = ["theme/js/mdbook-components-icons.js", "theme/js/mdbook-components.js"]
 

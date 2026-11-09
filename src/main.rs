@@ -1,7 +1,3 @@
-use pulldown_cmark::{html, CodeBlockKind, CowStr, Event, Options, Parser, Tag, TagEnd};
-use serde_json::Value;
-use std::{env, error::Error, fs, io::{self, Read}, path::PathBuf};
-use toml_edit::{value, Array, DocumentMut, Item};
 
 mod assets;
 mod book;
@@ -17,7 +13,6 @@ use book::*;
 use cli::*;
 use config::*;
 use parser::*;
-use renderer::*;
 
 fn main() {
     if let Err(e) = run() {

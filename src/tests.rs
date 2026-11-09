@@ -123,6 +123,16 @@
     }
 
     #[test]
+    fn nested_ordered_substeps_keep_parent_numbering() {
+        let src = "::: steps start=2\n1. First\n2. Second\n\n   1. Nested alpha\n   2. Nested beta\n\n3. Third\n:::\n::: steps continue\n1. Fourth\n:::\n";
+        let html = transform(src).unwrap();
+        assert!(html.contains("<ol start=\"2\">"));
+        assert!(html.contains("Nested alpha"));
+        assert!(html.contains("Nested beta"));
+        assert!(html.contains("<ol start=\"5\">"));
+    }
+
+    #[test]
     fn steps_invalid_start_and_missing_list_are_errors() {
         for invalid in ["0", "-1", "oops"] {
             let src = format!("::: steps start={invalid}\n1. First\n:::\n");
@@ -244,8 +254,7 @@
             assert!(html.contains("data-ln=\"false\""));
             assert!(html.contains("data-hl=\"2\""));
             assert!(!html.contains("workbook-component"));
-            assert!(html.contains("mdc-aside__icon"));
-            assert!(html.contains("aria-hidden=\"true\""));
+            assert!(!html.contains("mdc-aside__icon"));
         }
     }
 
@@ -275,7 +284,7 @@
 
     #[test]
     fn aside_icons_map_to_semantic_type_and_are_decorative() {
-        for (kind, expected) in [("note", "note"), ("info", "note"), ("tip", "tip"), ("success", "tip"), ("warning", "caution"), ("caution", "caution"), ("error", "danger"), ("important", "danger")] {
+        for (kind, expected) in [("note", "note"), ("info", "note"), ("tip", "tip"), ("success", "success"), ("warning", "caution"), ("caution", "caution"), ("error", "danger"), ("important", "important"), ("example", "example")] {
             let html = transform(&format!("::: {kind}\nHello\n:::\n")).unwrap();
             assert!(html.contains("mdc-aside__icon"), "{kind}");
             assert!(html.contains("aria-hidden=\"true\""), "{kind}");
@@ -433,6 +442,34 @@
     }
 
     #[test]
+    fn deeply_nested_code_placeholder_is_not_an_indented_code_block() {
+        // The code wrapper is indented for its parent Steps list, but its
+        // placeholder belongs to a Tab whose Markdown body is de-indented.
+        let input = r#"::: steps
+1. Run `cargo check`.
+
+    ::: tabs
+    ::: tab label="Rendered"
+
+    ::: code
+    ```rust
+    fn main() { println!("Hello"); }
+    ```
+    :::
+
+    :::
+    :::
+
+2. Run `cargo test`.
+:::"#;
+        let output = transform(input).unwrap();
+        assert!(!output.contains("MDCNESTEDBLOCK"), "{output}");
+        assert!(output.contains("workbook-tabs"), "{output}");
+        assert!(output.contains("language-rust"), "{output}");
+        assert!(output.contains("Run <code>cargo test</code>"), "{output}");
+    }
+
+    #[test]
     fn nested_aside_inside_step() {
         let source = "::: steps\n1. Check the result.\n\n    ::: caution title=\"Be careful\"\n    Do not overwrite data.\n    :::\n\n2. Save it.\n:::\n";
         let html = transform(source).unwrap();
@@ -443,8 +480,9 @@
 
     #[test]
     fn nested_reports_location() {
-        let err = transform("::: info\n::: tip\nInner\n:::\n:::\n").unwrap_err();
-        assert!(err.contains("Invalid tip component at line 2"));
+        let html = transform("::: info\n::: tip\nInner\n:::\n:::\n").unwrap();
+        assert!(html.contains("mdc-aside--tip"));
+        assert!(html.contains("mdc-aside--note"));
     }
     #[test]
     fn blank_lines_in_code_fences_do_not_break_html_blocks() {
@@ -756,4 +794,45 @@
         assert_eq!(once, twice);
         assert_eq!(twice.matches("workbook-header").count(), 1);
         assert_eq!(twice.matches("workbook-footer").count(), 1);
+    
+    #[test]
+    fn arbitrary_nested_asides_render_to_three_levels() {
+        let src = "::: note title=Outer\nOuter description.\n\n::: important title=Middle\nMiddle description.\n\n::: example title=Inner\n**Inner body**\n:::\n:::\n:::\n";
+        let html = transform(src).unwrap();
+        assert!(html.contains("mdc-aside--note"), "{html}");
+        assert!(html.contains("mdc-aside--important"), "{html}");
+        assert!(html.contains("mdc-aside--example"), "{html}");
+        assert!(html.contains("<strong>Inner body</strong>"), "{html}");
+        assert!(!html.contains("MDCNESTEDBLOCK"), "{html}");
     }
+
+    #[test]
+    fn named_closers_report_exact_mismatch_lines() {
+        let error = transform("::: note\n::: tip\nContent\n::: /note\n").unwrap_err();
+        assert!(error.contains("line 4"), "{error}");
+        assert!(error.contains("tip opened at line 2"), "{error}");
+        let error = transform("::: note\n::: tip\nContent\n:::\n").unwrap_err();
+        assert!(error.contains("note (line 1)"), "{error}");
+        assert!(error.contains("line 5"), "{error}");
+    }
+
+    #[test]
+    fn image_component_validates_source_and_renders_dimensions() {
+        let html = transform("::: image src='./figures/example.png' width=75% height=240 align=right alt='Circuit diagram'\nAn example image.\n:::\n").unwrap();
+        assert!(html.contains("mdc-image--right"), "{html}");
+        assert!(html.contains("--mdc-image-width: 75%;"), "{html}");
+        assert!(html.contains("--mdc-image-height: 240px;"), "{html}");
+        assert!(html.contains("alt=\"Circuit diagram\""), "{html}");
+        assert!(html.contains("<figcaption>"), "{html}");
+        assert!(transform("::: image width=50%\n:::\n").is_err());
+        let html = transform("::: image src='javascript:alert(1)'\n:::\n").unwrap();
+        assert!(!html.contains("<img"));
+    }
+
+    #[test]
+    fn hero_without_columns_is_full_width_layout() {
+        let html = transform("::: hero heading=Welcome\nOne paragraph.\n:::\n").unwrap();
+        assert!(html.contains("class=\"workbook-hero\""), "{html}");
+        assert!(!html.contains("workbook-hero--columns"), "{html}");
+    }
+}

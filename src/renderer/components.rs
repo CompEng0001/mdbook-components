@@ -2,6 +2,17 @@
 use crate::parser::{attribute, component_icon, escape, Directive};
 use super::{aside_icon, feature_icon, markdown_to_html, preserve_raw_html_block, set_first_ordered_list_start, svg_icon};
 
+// Replace placeholders after Markdown has constructed lists and paragraphs.
+// This allows arbitrary ordinary components to nest without invalid HTML blocks.
+fn body_html(d: &Directive) -> String {
+    let mut body = markdown_to_html(&d.body);
+    for (marker, html) in &d.nested_blocks {
+        let paragraph = format!("<p>{marker}</p>");
+        body = body.replace(&paragraph, html.trim());
+    }
+    preserve_raw_html_block(&body)
+}
+
 pub(crate) fn render(d: Directive) -> String {
     match d.kind.as_str() {
         "hero" => {
@@ -30,18 +41,18 @@ pub(crate) fn render(d: Directive) -> String {
                 let second = &d.hero_columns[1].1;
                 format!("\n<div class=\"workbook-hero workbook-hero--columns\"><div class=\"workbook-hero-content workbook-hero__columns\" style=\"--hero-primary: {left}fr; --hero-secondary: {right}fr;\"><div class=\"workbook-hero__column workbook-hero__column--primary\">{eyebrow_html}{heading}<div class=\"intro\">{first}</div>{tags_html}</div><div class=\"workbook-hero__column workbook-hero__column--secondary\">{second}</div></div></div>\n")
             } else {
-                let body = preserve_raw_html_block(&markdown_to_html(&d.body));
+                let body = body_html(&d);
                 format!("\n<div class=\"workbook-hero\"><div class=\"workbook-hero-content\">{eyebrow_html}{heading}<div class=\"intro\">{body}</div>{tags_html}</div></div>\n")
             }
         }
         "column" => {
             // Width is validated and used by the enclosing Hero; no arbitrary CSS.
-            preserve_raw_html_block(&markdown_to_html(&d.body))
+            body_html(&d)
         }
         "feature" => {
             let drawing = feature_icon(&attribute(&d.attrs, "icon").unwrap_or_else(|| "info".into()));
             let icon = if d.show_icon { svg_icon(drawing) } else { String::new() };
-            let body = preserve_raw_html_block(&markdown_to_html(&d.body));
+            let body = body_html(&d);
             // Per-card layout and width allow mixed compositions in a single grid.
             // Omitted attributes retain the parent `features` layout behaviour.
             let layout = match attribute(&d.attrs, "layout").as_deref() {
@@ -63,26 +74,44 @@ pub(crate) fn render(d: Directive) -> String {
         }
         "steps" => {
             let start = d.steps_start.unwrap_or(1);
-            let mut body = markdown_to_html(&d.body);
-            // Nested components are represented by paragraph placeholders while
-            // Markdown parses the ordered list. Replace them *afterwards* so
-            // their block HTML cannot terminate or escape its parent <li>.
-            for (marker, html) in &d.nested_blocks {
-                let paragraph = format!("<p>{marker}</p>");
-                if !body.contains(&paragraph) {
-                    // A malformed list is safer to reject than to silently
-                    // place a nested component outside the intended step.
-                    return format!("<!-- mdbook-components: unresolved step block {} -->", escape(marker));
-                }
-                body = body.replace(&paragraph, html.trim());
-            }
-            let body = preserve_raw_html_block(&body);
+            let body = body_html(&d);
             let body = set_first_ordered_list_start(&body, start);
             format!("\n<section class=\"workbook-steps\" aria-label=\"{}\" style=\"--step-counter-start: {}\">{body}</section>\n",
                 escape(&d.title), start - 1)
         }
+        "image" => {
+            // src is required; only relative paths and http(s) links are allowed.
+            let src = attribute(&d.attrs, "src").unwrap_or_default();
+            let safe = !src.is_empty() && !src.chars().any(char::is_control)
+                && !src.contains('"') && !src.contains('<') && !src.contains('>')
+                && !src.trim_start().to_ascii_lowercase().starts_with("javascript:")
+                && !src.trim_start().to_ascii_lowercase().starts_with("data:");
+            if !safe { return "<!-- mdbook-components: invalid image src -->".into(); }
+            let dimension = |name: &str| -> String {
+                attribute(&d.attrs, name).and_then(|v| {
+                    let valid = !v.is_empty() && v.len() <= 24
+                        && v.chars().all(|c| c.is_ascii_digit() || c == '.' || c == '%'
+                            || c == 'p' || c == 'x' || c == 'r' || c == 'e' || c == 'm'
+                            || c == 'v' || c == 'w' || c == 'h');
+                    if !valid { return None; }
+                    let value = if v.chars().all(|c| c.is_ascii_digit()) {
+                        format!("{v}px")
+                    } else { v };
+                    Some(format!("--mdc-image-{name}: {value};"))
+                }).unwrap_or_default()
+            };
+            let align = match attribute(&d.attrs, "align")
+                .or_else(|| attribute(&d.attrs, "alignment")).as_deref() {
+                Some("left") => "left", Some("right") => "right", _ => "center"
+            };
+            let alt = attribute(&d.attrs, "alt").unwrap_or_else(|| d.title.clone());
+            let caption = if d.body.trim().is_empty() { String::new() }
+                else { format!("<figcaption>{}</figcaption>", body_html(&d)) };
+            format!("\n<figure class=\"mdc-image mdc-image--{align}\" style=\"{}{}\"><img src=\"{}\" alt=\"{}\" loading=\"lazy\">{caption}</figure>\n",
+                dimension("width"), dimension("height"), escape(&src), escape(&alt))
+        }
         "filetree" => {
-            let body = preserve_raw_html_block(&markdown_to_html(&d.body));
+            let body = body_html(&d);
             // Icons are theme-aware monochrome by default. The only option
             // is icons=none, which removes the icon slots entirely.
             let icons = if attribute(&d.attrs, "icons").as_deref() == Some("none") {
@@ -95,7 +124,7 @@ pub(crate) fn render(d: Directive) -> String {
         "tab" => {
             let label = attribute(&d.attrs, "label").unwrap_or_default();
             let icon = attribute(&d.attrs, "icon").unwrap_or_default();
-            let body = preserve_raw_html_block(&markdown_to_html(&d.body));
+            let body = body_html(&d);
             format!("<section class=\"workbook-tab-panel\" data-label=\"{}\" data-icon=\"{}\">{body}</section>", escape(&label), escape(&icon))
         }
         "tabs" => {
@@ -117,20 +146,22 @@ pub(crate) fn render(d: Directive) -> String {
         "code" | "terminal" | "output" => {
             // Presentation belongs to the code renderer, not a legacy card.
             // Retain fenced-code attributes for highlighting and line numbers.
-            let content = preserve_raw_html_block(&markdown_to_html(&d.body));
+            let content = body_html(&d);
             format!("\n{content}\n")
         }
         _ => {
-            let content = preserve_raw_html_block(&markdown_to_html(&d.body));
+            let content = body_html(&d);
             let label = escape(&d.title);
             let kind = match d.kind.as_str() {
                 "info" | "note" => "note",
+                "important" => "important",
+                "example" => "example",
                 "tip" => "tip",
                 "success" => "success",
                 "explanation" => "explanation",
                 "bug" => "bug",
                 "warning" | "caution" => "caution",
-                "error" | "important" | "danger" => "danger",
+                "error" | "danger" => "danger",
                 _ => "note",
             };
             // The type controls accent colour and the optional decorative Aside icon.

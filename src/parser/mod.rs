@@ -34,8 +34,9 @@ pub(crate) fn fence_marker(line: &str) -> Option<(char, usize)> {
     (length >= 3).then_some((c, length))
 }
 
-// Stack-based parser: features only accept feature children; tabs only accept
-// tab children. Steps may contain ordinary block components in list items.
+// Stack-based parser: structural children (features, tabs, hero columns) are
+// restricted; ordinary components can nest within each other. Named closing
+// directives give an unambiguous mismatch location.
 pub(crate) fn transform(source: &str) -> Result<String, String> {
     let mut out = String::new();
     let mut stack: Vec<Directive> = Vec::new();
@@ -68,7 +69,13 @@ pub(crate) fn transform(source: &str) -> Result<String, String> {
         }
 
         if let Some(top) = stack.last() {
-            if trimmed == ":::" {
+            let named_close = trimmed.strip_prefix("::: /");
+            if trimmed == ":::" || named_close.is_some() {
+                if let Some(close_kind) = named_close {
+                    if close_kind.trim() != top.kind {
+                        return Err(format!("Mismatched closing directive at line {}: ::: /{}; expected ::: /{} for {} opened at line {} (nesting depth {})", n + 1, close_kind.trim(), top.kind, top.kind, top.start_line, stack.len()));
+                    }
+                }
                 let mut completed = stack.pop().expect("component stack not empty");
                 let kind = completed.kind.clone();
                 if kind == "steps" {
@@ -120,17 +127,24 @@ pub(crate) fn transform(source: &str) -> Result<String, String> {
                         }
                         parent.tab_labels.push(label);
                         parent.body.push_str(&html);
-                    } else if parent.kind == "tab" || parent.kind == "column" {
-                        parent.body.push_str(&html);
-                    } else if parent.kind == "steps" {
-                        // A standalone Markdown paragraph keeps the component
-                        // inside the current list item. The HTML is spliced in
-                        // after pulldown-cmark has established the list tree.
-                        let marker = format!("MDCNESTEDBLOCK{}END", parent.nested_blocks.len());
-                        parent.body.push_str(&format!("\n{}{}\n\n", " ".repeat(completed_indent), marker));
-                        parent.nested_blocks.push((marker, html));
                     } else {
-                        return Err(format!("Unsupported nested {kind} inside {}", parent.kind));
+                        // A marker must be parsed as a Markdown paragraph so
+                        // body_html() can replace it with the nested component.
+                        // When a directive is inside a Steps list, its source
+                        // indentation is stripped from non-Steps children.
+                        // Retaining that original indentation here turns the
+                        // marker into an indented code block (<pre><code>),
+                        // leaking the literal MDCNESTEDBLOCK marker to users.
+                        // Only Steps itself needs the four-space indentation
+                        // to keep the placeholder inside its ordered-list item.
+                        let marker = format!("MDCNESTEDBLOCK{}END", parent.nested_blocks.len());
+                        let marker_indent = if parent.kind == "steps" {
+                            completed_indent
+                        } else {
+                            0
+                        };
+                        parent.body.push_str(&format!("\n{}{}\n\n", " ".repeat(marker_indent), marker));
+                        parent.nested_blocks.push((marker, html));
                     }
                 } else {
                     out.push_str(&html);
@@ -139,22 +153,34 @@ pub(crate) fn transform(source: &str) -> Result<String, String> {
             }
         }
 
+        if trimmed.starts_with("::: /") {
+            return Err(format!("Unexpected closing directive '{}' at line {}: no matching open component (nesting depth {})", trimmed, n + 1, stack.len()));
+        }
+        if trimmed == ":::" && stack.is_empty() {
+            return Err(format!("Unexpected ::: closing directive at line {}: no component is open (nesting depth 0)", n + 1));
+        }
+
         if let Some(mut directive) = opening(line) {
             let permitted = match stack.last() {
                 None => directive.kind != "feature" && directive.kind != "tab" && directive.kind != "column",
                 Some(parent) if parent.kind == "features" => directive.kind == "feature",
                 Some(parent) if parent.kind == "hero" => directive.kind == "column",
-                Some(parent) if parent.kind == "column" =>
-                    directive.kind != "column" && directive.kind != "hero"
-                        && directive.kind != "feature" && directive.kind != "tab",
                 Some(parent) if parent.kind == "tabs" => directive.kind == "tab",
-                Some(parent) if parent.kind == "tab" => directive.kind != "tab" && directive.kind != "feature" && directive.kind != "column",
-                Some(parent) if parent.kind == "steps" => directive.kind != "feature" && directive.kind != "tab" && directive.kind != "steps" && directive.kind != "column",
-                _ => false,
+                Some(parent) => {
+                    // Structural children remain constrained to their parents.
+                    !["feature", "tab", "column"]
+                        .contains(&directive.kind.as_str())
+                        && parent.kind != "image" && !(parent.kind == "steps" && directive.kind == "steps")
+                },
             };
             if !permitted {
-                let parent = stack.last().map(|d| d.kind.as_str()).unwrap_or("chapter");
-                return Err(format!("Invalid {} component at line {} inside {}. Allowed nesting: feature inside features; tab inside tabs; ordinary components inside tabs or steps", directive.kind, n + 1, parent));
+                let parent = stack.last();
+                let context = parent.map(|d| format!("{} opened at line {}", d.kind, d.start_line))
+                    .unwrap_or_else(|| "chapter root".to_owned());
+                return Err(format!("Invalid {} component at line {} inside {} (nesting depth {}). Structural children: feature inside features; tab inside tabs; column inside hero", directive.kind, n + 1, context, stack.len()));
+            }
+            if directive.kind == "image" && attribute(&directive.attrs, "src").is_none() {
+                return Err(format!("image opened at line {} requires src=", n + 1));
             }
             if directive.kind == "tab" && attribute(&directive.attrs, "label").is_none_or(|s| s.trim().is_empty()) {
                 return Err(format!("tab at line {} requires a non-empty label= attribute", n + 1));
@@ -190,7 +216,9 @@ pub(crate) fn transform(source: &str) -> Result<String, String> {
         if n > 2_000_000 { return Err("Chapter exceeds component parser safety limit".into()); }
     }
     if let Some(d) = stack.last() {
-        return Err(format!("Unclosed {} component opened at line {} (expected '{}')", d.kind, d.start_line, ":::"));
+        let chain = stack.iter().map(|item| format!("{} (line {})", item.kind, item.start_line))
+            .collect::<Vec<_>>().join(" > ");
+        return Err(format!("Unclosed {} component opened at line {}; reached end of input at line {} (nesting depth {}). Open blocks: {}. Expected ::: or ::: /{}", d.kind, d.start_line, source.lines().count() + 1, stack.len(), chain, d.kind));
     }
     Ok(out)
 }

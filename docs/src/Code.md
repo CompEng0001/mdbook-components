@@ -104,3 +104,9 @@ cargo test
 ## Rust Playground and copying
 
 mdBook’s Rust Playground hidden lines should not be counted as visible rows by the line-number enhancement. The copy control copies source text rather than displayed gutter numbers or collapse affordances. Horizontal overflow stays inside the code viewport.
+
+## Copying source
+
+Copy buttons preserve the original source, including newlines, indentation and
+blank lines. Rebuild book assets after upgrading (`mdbook-components init --force`)
+so stale JavaScript is not served by the deployed book.

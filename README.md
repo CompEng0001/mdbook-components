@@ -70,3 +70,22 @@ additional-js = ["theme/js/mdbook-components-icons.js", "theme/js/mdbook-compone
 ## Author
 
 [CompEng0001](https://github.com/CompEng0001)
+
+## Updated component behaviour (November 2026)
+
+- Ordinary components may be nested inside one another; structural children
+  (`feature`, `tab`, `column`) must remain in their respective containers.
+- Standard `:::` closers remain supported. Optional named closers such as
+  `::: /note` and `::: /important` report the closing line and opening line
+  when the kinds do not match. Unclosed components report the entire stack.
+- `::: image src="./figures/example.png" width=75% height=300 align=center alt="Circuit"`
+  supports responsive width and height and an optional Markdown caption body.
+- Asides have refined icons and separate accent colours. Single-column Hero
+  content uses the full available width.
+- The client-side source renderer preserves newlines in copied code and
+  explicitly sets line-number gutter colours for light and dark themes.
+
+After updating the preprocessor, re-install its theme assets from the project
+root with `mdbook-components init --force`. The compiled preprocessor alone
+will not update CSS/JS already copied into individual books. Run the Rust test
+suite with `cargo test` before release; the provided source is not precompiled.

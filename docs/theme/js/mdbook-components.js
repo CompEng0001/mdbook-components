@@ -356,20 +356,34 @@ if (!window.MDCIcons) {
       const hidden = isPlaygroundHiddenLine(fragment, hideBoring);
       return makeLine(fragment, i, hidden ? null : visibleIndex++, cfg);
     });
+    // Row elements already create visual line breaks. Keep a hidden separator
+    // for DOM consumers (e.g. the mdBook Rust Playground) that read textContent.
+    // Unlike bare newline text nodes it does not create extra rendered rows.
+    function appendSeparator() {
+      const separator = document.createElement('span');
+      separator.className = 'ec-line-separator';
+      separator.textContent = '\n';
+      code.append(separator);
+    }
     for (let i = 0; i < lines.length;) {
       if (!cfg.collapsed.has(i + 1)) {
         code.append(lines[i]);
+        if (i < lines.length - 1) appendSeparator();
         i++;
         continue;
       }
       const run = [];
       while (i < lines.length && cfg.collapsed.has(i + 1)) run.push(lines[i++]);
       appendCollapsed(code, run, cfg);
+      if (i < lines.length) appendSeparator();
     }
     pre.classList.add('ec-pre');
     // mdBook's clipboard button copies code.textContent. Intercept only this
     // enhanced block so the copied source never includes disclosure labels.
     pre.dataset.ecSource = sourceText;
+    // mdBook's default copy handler may target <code>. Preserve the original
+    // source independently of highlight.js line wrappers and collapsed labels.
+    code.dataset.ecSource = sourceText;
   }
 
   function copyHandler(event) {
@@ -379,13 +393,28 @@ if (!window.MDCIcons) {
     if (!pre) return;
     event.preventDefault();
     event.stopImmediatePropagation();
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(pre.dataset.ecSource).catch(() => {});
+    const source = pre.dataset.ecSource || '';
+    // The original fence text is stored before individual line <span>s are
+    // created: textContent of the enhanced DOM would concatenate the lines.
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(source).catch(() => fallbackCopy(source));
+    } else {
+      fallbackCopy(source);
     }
   }
 
+  function fallbackCopy(source) {
+    const field = document.createElement('textarea');
+    field.value = source;
+    field.style.position = 'fixed';
+    field.style.opacity = '0';
+    document.body.appendChild(field);
+    field.select();
+    try { document.execCommand('copy'); } finally { field.remove(); }
+  }
+
   // Version marker to distinguish fresh builds from stale hashed assets.
-  window.__mdbookComponentsCodeVersion = 'playground-visible-v3';
+  window.__mdbookComponentsCodeVersion = 'source-preserving-v5-no-extra-rows';
 
   function initialise() {
     document.querySelectorAll('pre > code').forEach(enhance);

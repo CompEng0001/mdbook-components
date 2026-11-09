@@ -11,3 +11,5 @@
 - [Icon gallery](Icons.md)
 - [Tables](Tables.md)
 - [Global header and footer](Header_Footer.md)
+
+- [Images](Image.md)
