@@ -313,3 +313,50 @@ Supported built-in Feature icon names include `pencil`, `terminal`, `github`, `b
 ::: caution title="Nesting rule"
 Only `::: feature` elements are valid **direct children** of `::: features`. Put text, links, and Markdown formatting inside each `::: feature`, not directly in the outer container.
 :::
+
+## Column-major layout (opt-in)
+
+Use `layout=columns` when the **first two** features should stack vertically
+in the left column and the **third** should fill the right column. The order
+in Markdown determines the placement. This is designed for a two-column,
+two-row composition; for arbitrary numbers of feature cards, retain the
+standard `layout=grid`.
+
+
+::: tabs
+::: tab label="Rendered" icon=monitor
+
+::: features layout=columns
+::: feature title="Overview" width=half height=half
+Explain the exercise.
+:::
+::: feature title="Resources" width=half height=half
+Provide the downloads.
+:::
+::: feature title="Demonstration" width=half height=full
+::: image src="./figures/demo.gif" width=100% alt="App demonstration"
+:::
+:::
+:::
+:::
+::: tab label="Markdown" icon=markdown
+
+```markdown
+::: features layout=columns
+::: feature title="Overview" width=half height=half
+Explain the exercise.
+:::
+::: feature title="Resources" width=half height=half
+Provide the downloads.
+:::
+::: feature title="Demonstration" width=half height=full
+::: image src="./figures/demo.gif" width=100% alt="App demonstration"
+:::
+:::
+:::
+```
+:::
+:::
+
+The default `::: features` grid retains its existing row-major behaviour.
+On screens under 651px, cards stack in their original source order.

@@ -341,11 +341,26 @@ if (!window.MDCIcons) {
     }
     const rawText = code.textContent.replace(/\r\n?/g, '\n');
     const sourceText = rawText.replace(/^(?:[ \t]*\n)+/, '').replace(/(?:\n[ \t]*)+$/, '');
-    const fragments = splitLines(code);
+    let fragments = splitLines(code);
     const hideBoring = code.classList.contains('hide-boring');
+    // The original fence text, not Highlight.js's generated spans, defines
+    // source-line coordinates. Highlighting can introduce extra empty DOM
+    // fragments; in that case use exact source rows rather than leaving
+    // lines outside a requested collapse={1-N} range.
+    if (!hideBoring) {
+      const sourceLines = sourceText.split('\n');
+      if (fragments.length !== sourceLines.length ||
+          fragments.some((fragment, index) => fragment.textContent !== sourceLines[index])) {
+        fragments = sourceLines.map(text => {
+          const fragment = document.createDocumentFragment();
+          fragment.append(document.createTextNode(text));
+          return fragment;
+        });
+      }
+    }
     const visibleCount = fragments.filter(fragment => !isPlaygroundHiddenLine(fragment, hideBoring)).length;
     const cfg = parseConfig(code, visibleCount);
-    cfg.lineCount = fragments.length;
+    cfg.lineCount = visibleCount;
     // Use exactly the same code layout with or without line numbers.
     code.dataset.ecProcessed = 'true';
     code.classList.add('ec-code');
@@ -365,15 +380,19 @@ if (!window.MDCIcons) {
       separator.textContent = '\n';
       code.append(separator);
     }
+    // collapse coordinates refer to visible lines, not Highlight.js fragments
+    // or Rust Playground setup lines hidden with #.
+    const isCollapsed = line => line.dataset.lineNumber &&
+      cfg.collapsed.has(Number(line.dataset.lineNumber) - cfg.first + 1);
     for (let i = 0; i < lines.length;) {
-      if (!cfg.collapsed.has(i + 1)) {
+      if (!isCollapsed(lines[i])) {
         code.append(lines[i]);
         if (i < lines.length - 1) appendSeparator();
         i++;
         continue;
       }
       const run = [];
-      while (i < lines.length && cfg.collapsed.has(i + 1)) run.push(lines[i++]);
+      while (i < lines.length && isCollapsed(lines[i])) run.push(lines[i++]);
       appendCollapsed(code, run, cfg);
       if (i < lines.length) appendSeparator();
     }
@@ -414,7 +433,7 @@ if (!window.MDCIcons) {
   }
 
   // Version marker to distinguish fresh builds from stale hashed assets.
-  window.__mdbookComponentsCodeVersion = 'source-preserving-v5-no-extra-rows';
+  window.__mdbookComponentsCodeVersion = 'source-preserving-v6-collapse-alignment';
 
   function initialise() {
     document.querySelectorAll('pre > code').forEach(enhance);

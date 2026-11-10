@@ -109,7 +109,7 @@
   position: relative;
   list-style: none;
   margin: 0 0 .65rem;
-  padding: 0 0 0 3.5rem;
+  padding: 0 0 0 4.5rem;
   border: 0;
   min-height: 1.8rem;
 }
@@ -1163,3 +1163,25 @@ pre .hljs-ln-numbers .hljs-ln-n {
 .mdc-image--right { margin-inline: auto 0; }
 .mdc-image img { display: block; width: 100%; max-width: 100%; height: var(--mdc-image-height, auto); object-fit: contain; }
 .mdc-image figcaption { font-size: .9em; color: var(--fg); opacity: .85; margin-top: .5rem; text-align: center; }
+
+/* Opt-in column-major feature layout. Two rows per column: two half-height
+ * features stack in the first column, and one full-height feature occupies
+ * the second. The original grid layout and width/height modifiers remain
+ * unchanged for all existing books. */
+@media (min-width: 651px) {
+  .workbook-features--columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, auto));
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+  }
+  .workbook-features--columns > .workbook-feature--height-full {
+    grid-row: span 2;
+  }
+  .workbook-features--columns > .workbook-feature--height-half {
+    grid-row: span 1;
+  }
+}
+@media (max-width: 650px) {
+  .workbook-features--columns { grid-auto-flow: row; grid-template-rows: none; }
+}

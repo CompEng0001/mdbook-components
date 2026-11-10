@@ -9,6 +9,10 @@ fn body_html(d: &Directive) -> String {
     for (marker, html) in &d.nested_blocks {
         let paragraph = format!("<p>{marker}</p>");
         body = body.replace(&paragraph, html.trim());
+        // Raw HTML preceding a marker (<a>, <br>, <li>, etc.) can cause
+        // pulldown-cmark to place it inside an HTML event instead of a <p>.
+        // Always replace the remaining literal marker as well.
+        body = body.replace(marker, html.trim());
     }
     preserve_raw_html_block(&body)
 }
@@ -139,6 +143,7 @@ pub(crate) fn render(d: Directive) -> String {
             let layout = match attribute(&d.attrs, "layout").as_deref() {
                 Some("horizontal") => "horizontal",
                 Some("vertical") => "vertical",
+                Some("columns") => "columns",
                 _ => "grid",
             };
             format!("\n<div class=\"workbook-features workbook-features--{layout}\">{}</div>\n", d.body.trim())

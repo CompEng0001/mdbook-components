@@ -835,4 +835,25 @@
         assert!(html.contains("class=\"workbook-hero\""), "{html}");
         assert!(!html.contains("workbook-hero--columns"), "{html}");
     }
+    #[test]
+    fn raw_html_does_not_leak_nested_component_placeholders() {
+        let src = "::: hero heading=Demo\n<a href=\"https://example.org\">Example</a><br>\n::: note title=Info\nNested body\n:::\n:::\n";
+        let html = transform(src).unwrap();
+        assert!(html.contains("mdc-aside--note"), "{html}");
+        assert!(html.contains("Nested body"), "{html}");
+        assert!(!html.contains("MDCNESTEDBLOCK"), "{html}");
+    }
+
+    #[test]
+    fn ordered_feature_columns_preserve_card_order() {
+        let src = "::: features layout=columns\n::: feature title=A width=half height=half\nFirst\n:::\n::: feature title=B width=half height=half\nSecond\n:::\n::: feature title=C width=half height=full\nThird\n:::\n:::\n";
+        let html = transform(src).unwrap();
+        assert!(html.contains("workbook-features--columns"), "{html}");
+        assert_eq!(html.matches("workbook-feature--half").count(), 3);
+        assert!(html.find("First").unwrap() < html.find("Second").unwrap());
+        assert!(html.find("Second").unwrap() < html.find("Third").unwrap());
+        let grid = transform("::: features\n::: feature title=A\nHello\n:::\n:::\n").unwrap();
+        assert!(grid.contains("workbook-features--grid"));
+    }
+
 }

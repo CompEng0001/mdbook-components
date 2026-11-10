@@ -6,13 +6,13 @@ Asides communicate context, guidance, outcomes and problems without interrupting
 
 | Directive | Accent | When to use |
 | --- | --- | --- |
-| `note` | Blue | Additional factual context |
+| `note`, `info` | Blue | Additional factual context |
 | `tip` | Purple | Useful practice or suggestion |
 | `explanation` | Teal | Why something happens or how it works |
 | `success` | Green | A completed action or expected outcome |
-| `caution` | Orange | A potential issue requiring care |
+| `caution`, `warning` | Orange | A potential issue requiring care |
 | `bug` | Red | A defect, unexpected behaviour or debugging task |
-| `danger` | Red | A serious risk or destructive action |
+| `danger`,`error` `important` | Red | A serious risk or destructive action |
 
 ## All seven variants
 
@@ -131,6 +131,20 @@ The icon is intentionally hidden in this example.
 
 Ordinary components can be nested inside other components:
 
+::: tabs
+::: tab label="Rendered" icon=monitor
+
+::: note title="Preparation"
+Review the setup.
+
+::: important title="Hardware safety"
+Check the wiring before powering the board.
+:::
+
+:::
+:::
+::: tab label="Markdown" icon=markdown
+
 ````markdown
 ::: note title="Preparation"
 Review the setup.
@@ -141,6 +155,8 @@ Check the wiring before powering the board.
 
 :::
 ````
+:::
+:::
 
 To diagnose a mismatched closing directive, an optional explicit closer may be
 used (`::: /important`, `::: /note`). Plain `:::` remains supported. The parser
