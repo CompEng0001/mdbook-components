@@ -273,7 +273,8 @@ if (!window.MDCIcons) {
     // collapse refers to 1-based source positions, regardless of startLineNumber.
     const collapsed = ranges(getMeta(code, 'collapse'), count);
     const style = getMeta(code, 'collapseStyle') || 'start';
-    return { first, numbered, highlights, collapsed, style };
+    const wrap = getMeta(code, 'wrap') === 'true';
+    return { first, numbered, highlights, collapsed, style, wrap };
   }
 
   // Rust playground hides its injected setup lines inside `.boring` spans.
@@ -358,6 +359,7 @@ if (!window.MDCIcons) {
     code.dataset.ecProcessed = 'true';
     code.classList.add('ec-code');
     if (cfg.numbered) code.classList.add('ec-numbered');
+    if (cfg.wrap) pre.classList.add('ec-wrap');
     code.replaceChildren();
     let visibleIndex = 0;
     const lines = fragments.map((fragment, i) => {

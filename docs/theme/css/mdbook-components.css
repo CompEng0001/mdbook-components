@@ -775,6 +775,28 @@ pre.ec-pre .ec-source {
   white-space: pre;
 }
 
+
+/* Opt-in visual wrapping. Each .ec-line is still one logical source line,
+   so wrapped continuations receive no duplicate gutter number. */
+pre.ec-pre.ec-wrap {
+  overflow-x: auto; /* retain a fallback for non-wrappable embedded content */
+}
+pre.ec-pre.ec-wrap > code.ec-code,
+pre.ec-pre.ec-wrap > code.ec-code.hljs {
+  width: 100%;
+  min-width: 0;
+  white-space: pre-wrap;
+}
+pre.ec-pre.ec-wrap .ec-line {
+  white-space: pre-wrap;
+}
+pre.ec-pre.ec-wrap .ec-source {
+  flex: 1 1 0%;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 pre.ec-pre .ec-line.ec-highlight {
   background: color-mix(in srgb, var(--sidebar-fg, var(--fg)) 16%, transparent);
 }

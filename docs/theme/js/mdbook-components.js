@@ -272,8 +272,9 @@ if (!window.MDCIcons) {
     const highlights = ranges(getMeta(code, 'hl'), first + count - 1, { min: first });
     // collapse refers to 1-based source positions, regardless of startLineNumber.
     const collapsed = ranges(getMeta(code, 'collapse'), count);
-    const style = getMeta(code, 'collapseStyle') || 'auto';
-    return { first, numbered, highlights, collapsed, style };
+    const style = getMeta(code, 'collapseStyle') || 'start';
+    const wrap = getMeta(code, 'wrap') === 'true';
+    return { first, numbered, highlights, collapsed, style, wrap };
   }
 
   // Rust playground hides its injected setup lines inside `.boring` spans.
@@ -308,11 +309,8 @@ if (!window.MDCIcons) {
   function appendCollapsed(code, run, cfg) {
     const details = document.createElement('details');
     details.className = 'ec-collapse';
-    const allowed = new Set(['start', 'end', 'auto']);
-    const mode = allowed.has(cfg.style) ? cfg.style : 'auto';
-    details.dataset.mode = mode === 'auto'
-      ? (Number(run[run.length - 1].dataset.lineNumber) >= cfg.first + cfg.lineCount - 2
-          ? 'end' : 'start') : mode;
+    // 'start' is the default; only 'end' explicitly moves the disclosure.
+    details.dataset.mode = cfg.style === 'end' ? 'end' : 'start';
     const summary = document.createElement('summary');
     summary.className = 'ec-collapse-summary';
     summary.textContent = `${run.length} collapsed line${run.length === 1 ? '' : 's'} — show code`;
@@ -361,6 +359,7 @@ if (!window.MDCIcons) {
     code.dataset.ecProcessed = 'true';
     code.classList.add('ec-code');
     if (cfg.numbered) code.classList.add('ec-numbered');
+    if (cfg.wrap) pre.classList.add('ec-wrap');
     code.replaceChildren();
     let visibleIndex = 0;
     const lines = fragments.map((fragment, i) => {

@@ -48,6 +48,7 @@ pub(crate) fn markdown_to_html(content: &str) -> String {
                             "startLineNumber" => Some("data-start-line-number"),
                             "collapse" => Some("data-collapse"),
                             "collapseStyle" => Some("data-collapse-style"),
+                            "wrap" => Some("data-wrap"),
                             _ => None,
                         };
                         if let Some(attr) = attr {

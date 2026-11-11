@@ -650,6 +650,27 @@
     }
 
     #[test]
+    fn code_wrap_metadata_is_preserved_in_fences() {
+        let wrapped = transform("```sh wrap=true start=7\ncurl https://example.org/a/long/path\n```\n").unwrap();
+        assert!(wrapped.contains("data-wrap=\"true\""));
+        assert!(wrapped.contains("data-start=\"7\""));
+
+        let unwrapped = transform("```sh wrap=false\nprintf 'hello'\n```\n").unwrap();
+        assert!(unwrapped.contains("data-wrap=\"false\""));
+
+        let implicit = transform("```sh\nprintf 'hello'\n```\n").unwrap();
+        assert!(!implicit.contains("data-wrap="));
+    }
+
+    #[test]
+    fn wrapped_code_inside_tabs_preserves_metadata() {
+        let src = "::: tabs\n::: tab label=Shell\n```sh wrap=true start=2\nprintf 'long command'\n```\n:::\n:::\n";
+        let rendered = transform(src).unwrap();
+        assert!(rendered.contains("data-wrap=\"true\""));
+        assert!(rendered.contains("data-start=\"2\""));
+    }
+
+    #[test]
     fn collapse_style_modes_are_preserved_as_metadata() {
         for style in ["start", "end"] {
             let src = format!("```rust start=5 collapse={{2-3}} collapseStyle={style}\nfn main() {{}}\n```\n");

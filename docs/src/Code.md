@@ -167,9 +167,34 @@ cargo test
 :::
 :::
 
+## Wrapping long lines
+
+By default, code blocks preserve source lines and allow horizontal scrolling. Add `wrap=true` to wrap long lines visually without inserting newlines into the source or copied text. `wrap=false` is the default and can be omitted.
+
+Wrapping is compatible with `start=n`, highlighting, and collapsed sections. A wrapped source line keeps **one** gutter number, even when it occupies several visual rows.
+
+::: tabs
+::: tab label="Rendered" icon=monitor
+
+```sh start=1 wrap=true
+curl -L https://static.rust-lang.org/dist/rust-1.95.0-armv7-unknown-linux-gnueabihf.tar.xz | ssh debian@192.168.7.2 "cat > rust.tar.xz"
+```
+
+:::
+::: tab label="Markdown" icon=markdown
+
+````markdown
+```sh start=1 wrap=true
+curl -L https://static.rust-lang.org/dist/rust-1.95.0-armv7-unknown-linux-gnueabihf.tar.xz | ssh debian@192.168.7.2 "cat > rust.tar.xz"
+```
+````
+
+:::
+:::
+
 ## Rust Playground and copying
 
-mdBook’s Rust Playground hidden lines should not be counted as visible rows by the line-number enhancement. The copy control copies source text rather than displayed gutter numbers or collapse affordances. Horizontal overflow stays inside the code viewport.
+mdBook’s Rust Playground hidden lines should not be counted as visible rows by the line-number enhancement. The copy control copies source text rather than displayed gutter numbers or collapse affordances. By default, long lines scroll horizontally; `wrap=true` enables visual wrapping instead.
 
 ## Copying source
 
