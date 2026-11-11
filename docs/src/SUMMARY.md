@@ -1,6 +1,7 @@
 # Summary
 
 - [Overview and layouts](Overview.md)
+- [Installation](Installation.md)
 - [Hero](Hero.md)
 - [Asides](Asides.md)
 - [Steps](Steps.md)

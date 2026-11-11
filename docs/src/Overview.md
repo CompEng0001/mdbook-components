@@ -5,13 +5,17 @@ A reference gallery for the supported mdBook directives. Every example presents 
 
 ## Getting started
 
-Use [Hero](Hero.md) for an introductory banner, with optional two-column layouts and adjustable widths. The Hero provides presentation only.
+::: steps
 
-Use [Feature cards](Features.md) for responsive grids of capabilities, learning outcomes, or related topics.
+1. Start with [Installation](Installation.md)
 
-## Component reference
+2. Use [Hero](Hero.md) for an introductory banner, with optional two-column layouts and adjustable widths. The Hero provides presentation only.
 
-Continue with [Hero](Hero.md), [Asides](Asides.md), [Steps](Steps.md), [Tabs](Tabs.md), [File Trees](File_Trees.md), [Code](Code.md), [Icon Gallery](Icons.md), [Tables](Tables.md), and [Global Header/Footer](Header_Footer.md).
+3. Use [Feature cards](Features.md) for responsive grids of capabilities, learning outcomes, or related topics.
+
+4. Continue with [Hero](Hero.md), [Asides](Asides.md), [Steps](Steps.md), [Tabs](Tabs.md), [File Trees](File_Trees.md), [Code](Code.md), [Icon Gallery](Icons.md), [Tables](Tables.md), and [Global Header/Footer](Header_Footer.md).
+
+:::
 
 <br>
 
