@@ -79,6 +79,40 @@ pub(crate) fn component_icon(kind: &str) -> &'static str {
     drawing
 }
 
+// Return a name for an opening-shaped directive, including unsupported names.
+// A closing ::: or named ::: /kind is handled separately by transform().
+pub(crate) fn directive_name(line: &str) -> Option<&str> {
+    let spec = line.trim().strip_prefix("::: ")?.trim_start();
+    let token = spec.split_whitespace().next()?;
+    let name = token.split('.').next()?;
+    if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphabetic() || c == '-') {
+        return None;
+    }
+    Some(name)
+}
+
+// Edit distance is used only on unknown directive names, not ordinary content.
+fn edit_distance(a: &str, b: &str) -> usize {
+    let mut prev: Vec<usize> = (0..=b.len()).collect();
+    for (i, ca) in a.bytes().enumerate() {
+        let mut next = vec![i + 1; b.len() + 1];
+        for (j, cb) in b.bytes().enumerate() {
+            next[j + 1] = (prev[j + 1] + 1)
+                .min(next[j] + 1)
+                .min(prev[j] + usize::from(ca != cb));
+        }
+        prev = next;
+    }
+    prev[b.len()]
+}
+
+pub(crate) fn suggested_kind(unknown: &str) -> Option<&'static str> {
+    KINDS.iter().copied()
+        .map(|known| (known, edit_distance(unknown, known)))
+        .min_by_key(|(_, distance)| *distance)
+        .and_then(|(kind, distance)| (distance <= 2).then_some(kind))
+}
+
 pub(crate) fn opening(line: &str) -> Option<Directive> {
     let s = line.trim();
     let spec = s.strip_prefix("::: ")?;

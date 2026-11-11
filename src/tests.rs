@@ -856,4 +856,23 @@
         assert!(grid.contains("workbook-features--grid"));
     }
 
+    #[test]
+    fn unknown_component_inside_tabs_reports_original_line_with_suggestion() {
+        let src = "::: tabs\n::: tab label=Guide\n::: importnat\nRead this.\n:::\n::: explanation\nWhy it matters.\n:::\n:::\n:::\n";
+        let err = transform(src).unwrap_err();
+        assert!(err.contains("Unknown component '::: importnat' at line 3"), "{err}");
+        assert!(err.contains("did you mean '::: important'?"), "{err}");
+    }
+
+    #[test]
+    fn unknown_component_at_root_is_reported() {
+        let err = transform("::: notacomponent\nSomething\n:::\n").unwrap_err();
+        assert!(err.contains("Unknown component '::: notacomponent' at line 1"), "{err}");
+    }
+
+    #[test]
+    fn unknown_component_like_text_in_fence_is_ignored() {
+        let src = "```md\n::: importnat\n```\n";
+        assert_eq!(transform(src).unwrap(), src);
+    }
 }

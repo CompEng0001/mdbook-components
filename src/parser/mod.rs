@@ -191,6 +191,21 @@ pub(crate) fn transform(source: &str) -> Result<String, String> {
             continue;
         }
 
+        // Detect unrecognised directive names before they can silently shift
+        // the component stack and trigger a misleading error several lines later.
+        // This is intentionally after the fenced-code and valid-opening checks.
+        if let Some(name) = directive_name(line) {
+            if !KINDS.contains(&name) {
+                let suggestion = suggested_kind(name)
+                    .map(|kind| format!("; did you mean '::: {kind}'?"))
+                    .unwrap_or_default();
+                return Err(format!(
+                    "Unknown component '::: {name}' at line {}{}",
+                    n + 1, suggestion
+                ));
+            }
+        }
+
         let fence_line = if nested_inside_steps(&stack) {
             strip_directive_indent(line, stack.last().unwrap().indent)
         } else { line };
