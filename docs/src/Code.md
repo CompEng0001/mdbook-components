@@ -75,7 +75,7 @@ Use `collapseStyle=end` to keep the disclosure below the expanded code (**defaul
 ::: tab label="Rendered" icon=monitor
 
 ```rust showLineNumbers collapse={1-3} collapseStyle=end
-use std::fmt;e
+use std::fmt;
 use std::collections::HashMap;
 
 fn main() {

@@ -1,5 +1,5 @@
-/* Devicon 2.17.0 (MIT). Initial online stylesheet.
+/* Devicon latest (MIT). Initial online stylesheet.
    Run `python3 scripts/vendor_devicon_font.py` for a fully offline,
    self-contained copy that embeds the WOFF font and all class mappings.
    Sources: https://github.com/devicons/devicon */
-@import url("https://cdn.jsdelivr.net/npm/devicon@2.17.0/devicon.min.css");
+@import url("https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css");
