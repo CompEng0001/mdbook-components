@@ -174,5 +174,4 @@ mdBook’s Rust Playground hidden lines should not be counted as visible rows by
 ## Copying source
 
 Copy buttons preserve the original source, including newlines, indentation and
-blank lines. Rebuild book assets after upgrading (`mdbook-components init --force`)
-so stale JavaScript is not served by the deployed book.
+blank lines. 

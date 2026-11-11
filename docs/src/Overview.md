@@ -5,7 +5,7 @@ A reference gallery for the supported mdBook directives. Every example presents 
 
 ## Getting started
 
-Use [Hero](Hero.md) for an introductory banner, with optional two-column layouts and adjustable widths. The Hero provides presentation only; QR generation is handled independently by `mdbook-qr`.
+Use [Hero](Hero.md) for an introductory banner, with optional two-column layouts and adjustable widths. The Hero provides presentation only.
 
 Use [Feature cards](Features.md) for responsive grids of capabilities, learning outcomes, or related topics.
 

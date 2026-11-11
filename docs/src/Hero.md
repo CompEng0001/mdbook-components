@@ -151,7 +151,7 @@ Evaluate optimisations after the baseline is correct and measurable.
 
 ## Using a QR code from mdbook-qr
 
-`mdbook-components` does **not** generate QR codes. If your book also enables `mdbook-qr`, place its `{{QR_CODE}}` marker in a column. The QR preprocessor replaces the marker, subject to your configured preprocessor order and marker settings.
+`hero` can nest images, for example if your book also enables <a href="compeng0001.github.io/mdbook-qr" target="_blank">mdbook-qr</a>, place its `{{QR_CODE}}` marker in a column. The QR preprocessor replaces the marker, subject to your configured preprocessor order and marker settings.
 
 ::: tabs
 ::: tab label="Rendered" icon=monitor
@@ -209,8 +209,6 @@ height = 200
 
 :::
 :::
-
-This example is shown as source rather than a live QR preview so the documentation builds even when `mdbook-qr` is not configured.
 
 ## Attributes and behaviour
 
