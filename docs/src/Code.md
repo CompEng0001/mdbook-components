@@ -101,6 +101,14 @@ cargo test
 :::
 :::
 
+
+```rust
+let a: i32 = 100;
+let b: f64 = 3.14;
+let c: bool = true;
+let d: char = 'R';
+```
+
 ## Rust Playground and copying
 
 mdBook’s Rust Playground hidden lines should not be counted as visible rows by the line-number enhancement. The copy control copies source text rather than displayed gutter numbers or collapse affordances. Horizontal overflow stays inside the code viewport.

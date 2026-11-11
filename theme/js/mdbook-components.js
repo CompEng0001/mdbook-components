@@ -343,6 +343,12 @@ if (!window.MDCIcons) {
     const sourceText = rawText.replace(/^(?:[ \t]*\n)+/, '').replace(/(?:\n[ \t]*)+$/, '');
     let fragments = splitLines(code);
     const hideBoring = code.classList.contains('hide-boring');
+    // mdBook expands Rust snippets for the Playground using .boring spans.
+    // Keep the runnable source, but exclude those injected rows when copying
+    // the default (hidden-lines) presentation.
+    const visibleSourceText = fragments
+      .filter(fragment => !isPlaygroundHiddenLine(fragment, true))
+      .map(fragment => fragment.textContent).join('\n');
     // The original fence text, not Highlight.js's generated spans, defines
     // source-line coordinates. Highlighting can introduce extra empty DOM
     // fragments; in that case use exact source rows rather than leaving
@@ -400,6 +406,7 @@ if (!window.MDCIcons) {
     // mdBook's clipboard button copies code.textContent. Intercept only this
     // enhanced block so the copied source never includes disclosure labels.
     pre.dataset.ecSource = sourceText;
+    pre.dataset.ecVisibleSource = visibleSourceText;
     // mdBook's default copy handler may target <code>. Preserve the original
     // source independently of highlight.js line wrappers and collapsed labels.
     code.dataset.ecSource = sourceText;
@@ -412,7 +419,11 @@ if (!window.MDCIcons) {
     if (!pre) return;
     event.preventDefault();
     event.stopImmediatePropagation();
-    const source = pre.dataset.ecSource || '';
+    const code = pre.querySelector('code');
+    const hideBoring = code?.classList.contains('hide-boring');
+    const source = hideBoring
+      ? (pre.dataset.ecVisibleSource ?? '')
+      : (pre.dataset.ecSource ?? '');
     // The original fence text is stored before individual line <span>s are
     // created: textContent of the enhanced DOM would concatenate the lines.
     if (navigator.clipboard?.writeText) {
