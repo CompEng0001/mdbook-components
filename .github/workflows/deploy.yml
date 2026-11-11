@@ -41,12 +41,20 @@ jobs:
           tar -xzf mdbook-gitinfo-linux.tar.gz
           mv mdbook-gitinfo-linux ~/.cargo/bin/mdbook-gitinfo
 
+      - name: Install mdbook-qr (latest, verified)
+        run: |
+          curl -fsSLO https://github.com/CompEng0001/mdbook-qr/releases/download/v1.0.0/mdbook-qr-linux.tar.gz
+          tar -xzf mdbook-qr-linux.tar.gz
+          mv mdbook-qr-linux ~/.cargo/bin/mdbook-qr
+
       - name: Show mdbook version
         run: mdbook --version
       - name: Show components version
         run: mdbook-components --version
       - name: Show gitinfo version
         run: mdbook-gitinfo --version
+      - name: Show qr version
+        run: mdbook-qr --version
 
       - run: mdbook build docs
 
