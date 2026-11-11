@@ -827,19 +827,16 @@ pre.ec-pre details.ec-collapse summary:focus-visible {
   }
 }
 
-/* Collapsible-end keeps the disclosure at the bottom when expanded. */
-pre.ec-pre details.ec-collapse[data-mode="collapsible-end"][open] {
+/* End mode keeps the disclosure at the bottom when expanded. */
+pre.ec-pre details.ec-collapse[data-mode="end"][open] {
   display: flex;
   flex-direction: column;
 }
-pre.ec-pre details.ec-collapse[data-mode="collapsible-end"][open] > summary {
+pre.ec-pre details.ec-collapse[data-mode="end"][open] > summary {
   order: 2;
 }
-pre.ec-pre details.ec-collapse[data-mode="collapsible-end"][open] > .ec-collapse-content {
+pre.ec-pre details.ec-collapse[data-mode="end"][open] > .ec-collapse-content {
   order: 1;
-}
-pre.ec-pre details.ec-collapse > summary[hidden] {
-  display: none;
 }
 
 /* Hide complete Rust Playground setup rows, not only .boring source spans.

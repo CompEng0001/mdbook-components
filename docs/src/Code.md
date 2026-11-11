@@ -33,12 +33,17 @@ fn main() {
 
 ## Collapsible implementation details
 
-Collapsed lines retain their original line numbering. Other supported `collapseStyle` values are `collapsible-start`, `collapsible-end`, and `collapsible-auto`.
+Collapsed lines retain their original line numbering. 
+
+
+### Collapsible Style start
+
+Use `collapseStyle=start` to keep the disclosure above the expanded code (**default**)
 
 ::: tabs
 ::: tab label="Rendered" icon=monitor
 
-```rust showLineNumbers collapse={1-3} collapseStyle=github
+```rust start=1 collapse={1-3} collapseStyle=start
 use std::fmt;
 use std::collections::HashMap;
 
@@ -51,7 +56,72 @@ fn main() {
 ::: tab label="Markdown" icon=markdown
 
 ````markdown
-```rust showLineNumbers collapse={1-3} collapseStyle=github
+```rust start=1 collapse={1-3} collapseStyle=start
+use std::fmt;
+use std::collections::HashMap;
+
+fn main() {
+    println!("Measurements ready");
+}
+```
+````
+
+:::
+:::
+
+### Collapsible Style end
+Use `collapseStyle=end` to keep the disclosure below the expanded code (**default**)
+::: tabs
+::: tab label="Rendered" icon=monitor
+
+```rust showLineNumbers collapse={1-3} collapseStyle=end
+use std::fmt;e
+use std::collections::HashMap;
+
+fn main() {
+    println!("Measurements ready");
+}
+```
+
+:::
+::: tab label="Markdown" icon=markdown
+
+````markdown
+```rust showLineNumbers collapse={1-3} collapseStyle=end
+use std::fmt;
+use std::collections::HashMap;
+
+fn main() {
+    println!("Measurements ready");
+}
+```
+````
+
+:::
+:::
+
+
+### Collapsible Style default
+
+Omitting `collapseStyle` is equivalent to `collapseStyle=start`.
+
+::: tabs
+::: tab label="Rendered" icon=monitor
+
+```rust showLineNumbers collapse={1-3}
+use std::fmt;
+use std::collections::HashMap;
+
+fn main() {
+    println!("Measurements ready");
+}
+```
+
+:::
+::: tab label="Markdown" icon=markdown
+
+````markdown
+```rust showLineNumbers collapse={1-3}
 use std::fmt;
 use std::collections::HashMap;
 

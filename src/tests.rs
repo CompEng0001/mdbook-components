@@ -641,12 +641,30 @@
 
     #[test]
     fn expressive_metadata_is_preserved() {
-        let src = "```rust showLineNumbers startLineNumber=5 hl=6 collapse={1-3,8-10} collapseStyle=collapsible-start\nlet x = 1;\n```\n";
+        let src = "```rust showLineNumbers startLineNumber=5 hl=6 collapse={1-3,8-10} collapseStyle=start\nlet x = 1;\n```\n";
         let html = transform(src).unwrap();
         assert!(html.contains("data-show-line-numbers=\"true\""));
         assert!(html.contains("data-start-line-number=\"5\""));
         assert!(html.contains("data-collapse=\"{1-3,8-10}\""));
-        assert!(html.contains("data-collapse-style=\"collapsible-start\""));
+        assert!(html.contains("data-collapse-style=\"start\""));
+    }
+
+    #[test]
+    fn collapse_style_modes_are_preserved_as_metadata() {
+        for style in ["start", "end"] {
+            let src = format!("```rust start=5 collapse={{2-3}} collapseStyle={style}\nfn main() {{}}\n```\n");
+            let html = transform(&src).unwrap();
+            assert!(html.contains(&format!("data-collapse-style=\"{style}\"")));
+            assert!(html.contains("data-start=\"5\""));
+            assert!(html.contains("data-collapse=\"{2-3}\""));
+        }
+    }
+
+    #[test]
+    fn collapse_style_can_be_omitted_for_default_start_positioning() {
+        let html = transform("```rust collapse={1-2}\nlet x = 1;\n```\n").unwrap();
+        assert!(html.contains("data-collapse=\"{1-2}\""));
+        assert!(!html.contains("data-collapse-style="));
     }
 
     #[test]

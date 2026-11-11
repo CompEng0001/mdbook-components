@@ -272,7 +272,7 @@ if (!window.MDCIcons) {
     const highlights = ranges(getMeta(code, 'hl'), first + count - 1, { min: first });
     // collapse refers to 1-based source positions, regardless of startLineNumber.
     const collapsed = ranges(getMeta(code, 'collapse'), count);
-    const style = getMeta(code, 'collapseStyle') || 'collapsible-auto';
+    const style = getMeta(code, 'collapseStyle') || 'auto';
     return { first, numbered, highlights, collapsed, style };
   }
 
@@ -308,11 +308,11 @@ if (!window.MDCIcons) {
   function appendCollapsed(code, run, cfg) {
     const details = document.createElement('details');
     details.className = 'ec-collapse';
-    const allowed = new Set(['github', 'collapsible-start', 'collapsible-end', 'collapsible-auto']);
-    const mode = allowed.has(cfg.style) ? cfg.style : 'collapsible-auto';
-    details.dataset.mode = mode === 'collapsible-auto'
+    const allowed = new Set(['start', 'end', 'auto']);
+    const mode = allowed.has(cfg.style) ? cfg.style : 'auto';
+    details.dataset.mode = mode === 'auto'
       ? (Number(run[run.length - 1].dataset.lineNumber) >= cfg.first + cfg.lineCount - 2
-          ? 'collapsible-end' : 'collapsible-start') : mode;
+          ? 'end' : 'start') : mode;
     const summary = document.createElement('summary');
     summary.className = 'ec-collapse-summary';
     summary.textContent = `${run.length} collapsed line${run.length === 1 ? '' : 's'} — show code`;
@@ -322,10 +322,6 @@ if (!window.MDCIcons) {
     details.append(summary, content);
     code.append(details);
     details.addEventListener('toggle', () => {
-      if (details.open && details.dataset.mode === 'github') {
-        summary.hidden = true; // One-way expansion, matching GitHub's disclosure style.
-        return;
-      }
       summary.textContent = details.open
         ? `${run.length} lines — hide code` : `${run.length} collapsed line${run.length === 1 ? '' : 's'} — show code`;
     });
@@ -343,12 +339,6 @@ if (!window.MDCIcons) {
     const sourceText = rawText.replace(/^(?:[ \t]*\n)+/, '').replace(/(?:\n[ \t]*)+$/, '');
     let fragments = splitLines(code);
     const hideBoring = code.classList.contains('hide-boring');
-    // mdBook expands Rust snippets for the Playground using .boring spans.
-    // Keep the runnable source, but exclude those injected rows when copying
-    // the default (hidden-lines) presentation.
-    const visibleSourceText = fragments
-      .filter(fragment => !isPlaygroundHiddenLine(fragment, true))
-      .map(fragment => fragment.textContent).join('\n');
     // The original fence text, not Highlight.js's generated spans, defines
     // source-line coordinates. Highlighting can introduce extra empty DOM
     // fragments; in that case use exact source rows rather than leaving
@@ -406,7 +396,6 @@ if (!window.MDCIcons) {
     // mdBook's clipboard button copies code.textContent. Intercept only this
     // enhanced block so the copied source never includes disclosure labels.
     pre.dataset.ecSource = sourceText;
-    pre.dataset.ecVisibleSource = visibleSourceText;
     // mdBook's default copy handler may target <code>. Preserve the original
     // source independently of highlight.js line wrappers and collapsed labels.
     code.dataset.ecSource = sourceText;
@@ -419,11 +408,7 @@ if (!window.MDCIcons) {
     if (!pre) return;
     event.preventDefault();
     event.stopImmediatePropagation();
-    const code = pre.querySelector('code');
-    const hideBoring = code?.classList.contains('hide-boring');
-    const source = hideBoring
-      ? (pre.dataset.ecVisibleSource ?? '')
-      : (pre.dataset.ecSource ?? '');
+    const source = pre.dataset.ecSource || '';
     // The original fence text is stored before individual line <span>s are
     // created: textContent of the enhanced DOM would concatenate the lines.
     if (navigator.clipboard?.writeText) {
