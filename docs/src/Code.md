@@ -1,6 +1,6 @@
 # Code presentation
 
-Code enhancements apply to ordinary fenced code blocks, including those inside Tabs and Asides. `::: code`, `::: terminal`, and `::: output` are compatibility wrappers; they do not add legacy cards or headings.
+Code enhancements apply directly to ordinary fenced code blocks, including those inside Tabs, Asides, and Steps. No component wrapper is required.
 
 ## Line numbers and highlighting
 
@@ -64,9 +64,9 @@ fn main() {
 :::
 :::
 
-## Plain code and compatibility aliases
+## Plain code and metadata aliases
 
-`ln=true` and `start=n` are shorter aliases for line-number options. No extra title card is added by `terminal`; similarly, `code` and `output` keep their contents as code.
+`ln=true` and `start=n` are shorter aliases for line-number options. Fenced code blocks use the same renderer regardless of where they appear.
 
 ::: tabs
 ::: tab label="Rendered" icon=monitor
@@ -75,12 +75,10 @@ fn main() {
 printf 'Reading complete\n'
 ```
 
-::: terminal
 ```bash ln=true start=7 hl=8
 cargo check
 cargo test
 ```
-:::
 
 :::
 ::: tab label="Markdown" icon=markdown
@@ -90,12 +88,10 @@ cargo test
 printf 'Reading complete\n'
 ```
 
-::: terminal
 ```bash ln=true start=7 hl=8
 cargo check
 cargo test
 ```
-:::
 ````
 
 :::

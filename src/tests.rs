@@ -246,15 +246,20 @@
         assert!(out.contains("<strong>Git</strong>"));
     }
     #[test]
-    fn raw_code_has_no_legacy_header_or_icons() {
+    fn ordinary_fenced_code_has_no_legacy_header_or_icons() {
+        let html = transform("```rust ln=false hl=2\nlet x = 1;\nlet y = 2;\n```\n").unwrap();
+        assert!(html.contains("<pre><code class=\"language-rust\""));
+        assert!(html.contains("data-ln=\"false\""));
+        assert!(html.contains("data-hl=\"2\""));
+        assert!(!html.contains("workbook-component"));
+        assert!(!html.contains("mdc-aside__icon"));
+    }
+
+    #[test]
+    fn removed_code_wrappers_report_unknown_component() {
         for kind in ["code", "terminal", "output"] {
-            let source = format!("::: {kind}\n```rust ln=false hl=2\nlet x = 1;\nlet y = 2;\n```\n:::\n");
-            let html = transform(&source).unwrap();
-            assert!(html.contains("<pre><code"));
-            assert!(html.contains("data-ln=\"false\""));
-            assert!(html.contains("data-hl=\"2\""));
-            assert!(!html.contains("workbook-component"));
-            assert!(!html.contains("mdc-aside__icon"));
+            let source = format!("::: {kind}\n```sh\necho hello\n```\n:::\n");
+            assert!(transform(&source).is_err(), "{kind} must no longer be accepted");
         }
     }
 
@@ -322,7 +327,7 @@
     fn mdbook_05_items() {
         let mut book = serde_json::json!({"items": [
             {"Chapter": {"content": "::: tip\nHello\n:::\n", "sub_items": [
-                {"Chapter": {"content": "::: output\nDone\n:::\n", "sub_items": []}}
+                {"Chapter": {"content": "```text\nDone\n```\n", "sub_items": []}}
             ]}}
         ]});
         process_book(&mut book).unwrap();
@@ -358,7 +363,6 @@
 ::: steps continue title="Complete the build"
 1. Run `cargo check`.
 
-    ::: code
     ```c
     #include <stdio.h>
 
@@ -366,7 +370,6 @@
         return 0;
     }
     ```
-    :::
 
 2. Run `cargo test`.
 :::
@@ -379,7 +382,7 @@
 ````
 :::
 :::"#;
-        let rendered = transform(source).expect("Steps should accept a nested code directive");
+        let rendered = transform(source).expect("Steps should accept an ordinary nested code fence");
         assert!(rendered.contains("<ol start=\"3\">"), "{rendered}");
         assert!(rendered.contains("<pre><code class=\"language-c\">"), "{rendered}");
         assert!(rendered.contains("#include &lt;stdio.h&gt;"), "{rendered}");
@@ -406,13 +409,11 @@
     ::: tabs
     ::: tab label="Rendered" icon=monitor
 
-    ::: code
     ```rust
     fn main() {
         println!("Hello");
     }
     ```
-    :::
 
     :::
     :::
@@ -443,19 +444,17 @@
 
     #[test]
     fn deeply_nested_code_placeholder_is_not_an_indented_code_block() {
-        // The code wrapper is indented for its parent Steps list, but its
-        // placeholder belongs to a Tab whose Markdown body is de-indented.
+        // The fenced block is indented for its parent Steps list, but the
+        // rendered code belongs to a Tab whose Markdown body is de-indented.
         let input = r#"::: steps
 1. Run `cargo check`.
 
     ::: tabs
     ::: tab label="Rendered"
 
-    ::: code
     ```rust
     fn main() { println!("Hello"); }
     ```
-    :::
 
     :::
     :::
@@ -486,7 +485,7 @@
     }
     #[test]
     fn blank_lines_in_code_fences_do_not_break_html_blocks() {
-        let input = "::: terminal.side.right\n\n```sh\ngit config --global\n\nasdasd\n```\n\n:::\n";
+        let input = "```sh\ngit config --global\n\nasdasd\n```\n";
         let result = transform(input).unwrap();
         assert!(result.contains("</code></pre>"));
         assert!(result.contains("git config --global\n&#10;asdasd"));
@@ -634,7 +633,7 @@
 
     #[test]
     fn preserves_code_line_number_attributes() {
-        let html = transform("::: code\n```rust start=1 hl=2-3 linenumber=true\nlet x = 5;\n```\n:::\n").unwrap();
+        let html = transform("```rust start=1 hl=2-3 linenumber=true\nlet x = 5;\n```\n").unwrap();
         assert!(html.contains("data-start=\"1\""));
         assert!(html.contains("data-hl=\"2-3\""));
         assert!(html.contains("data-ln=\"true\""));
@@ -642,7 +641,7 @@
 
     #[test]
     fn expressive_metadata_is_preserved() {
-        let src = "::: code\n```rust showLineNumbers startLineNumber=5 hl=6 collapse={1-3,8-10} collapseStyle=collapsible-start\nlet x = 1;\n```\n:::\n";
+        let src = "```rust showLineNumbers startLineNumber=5 hl=6 collapse={1-3,8-10} collapseStyle=collapsible-start\nlet x = 1;\n```\n";
         let html = transform(src).unwrap();
         assert!(html.contains("data-show-line-numbers=\"true\""));
         assert!(html.contains("data-start-line-number=\"5\""));
@@ -661,7 +660,7 @@
 
     #[test]
     fn code_metadata_is_escaped() {
-        let src = "::: code\n```rust collapseStyle='\" onmouseover=evil'\nlet x = 1;\n```\n:::\n";
+        let src = "```rust collapseStyle='\" onmouseover=evil'\nlet x = 1;\n```\n";
         let html = transform(src).unwrap();
         assert!(!html.contains("onmouseover=evil\""));
     }

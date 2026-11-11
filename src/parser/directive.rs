@@ -1,7 +1,7 @@
 // Extracted from the original main.rs without changing the implementation.
 
 
-pub(crate) const KINDS: &[&str] = &["terminal", "output", "error", "warning", "important", "tip", "note", "goal", "example", "exercise", "info", "success", "code", "caution", "explanation", "bug", "danger", "hero", "column", "features", "feature", "steps", "filetree", "tabs", "tab", "image"];
+pub(crate) const KINDS: &[&str] = &["error", "warning", "important", "tip", "note", "goal", "example", "exercise", "info", "success", "caution", "explanation", "bug", "danger", "hero", "column", "features", "feature", "steps", "filetree", "tabs", "tab", "image"];
 
 #[derive(Debug)]
 pub(crate) struct Directive {
@@ -66,9 +66,8 @@ pub(crate) fn component_icon(kind: &str) -> &'static str {
         "goal" => "<circle cx='12' cy='12' r='9'/><circle cx='12' cy='12' r='5'/><circle cx='12' cy='12' r='1'/>",
         "exercise" => "<path d='M8 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3'/><rect x='8' y='2' width='8' height='4' rx='1'/><path d='m8 14 2 2 5-5'/>",
         "success" => "<circle cx='12' cy='12' r='10'/><path d='m8 12 3 3 5-6'/>",
+        // Shared icon retained for Hero and feature icon=terminal; not a directive.
         "terminal" => "<rect x='2' y='3' width='20' height='18' rx='2'/><path d='m6 9 3 3-3 3m6 0h6'/>",
-        "output" => "<rect x='3' y='3' width='18' height='18' rx='2'/><path d='M7 8h10M7 12h10M7 16h6'/>",
-        "code" => "<path d='m8 8-4 4 4 4m8-8 4 4-4 4m-3-12-2 16'/>",
         "steps" => "<path d='M4 6h2m4 0h10M4 12h2m4 0h10M4 18h2m4 0h10'/>",
         "filetree" => "<path d='M3 7h6l2 2h10v11H3z'/>",
         "example" => "<path d='M12 7c-3-2-6-2-10-1v13c4-1 7-1 10 1m0-13c3-2 6-2 10-1v13c-4-1-7-1-10 1m0-13v13'/>",

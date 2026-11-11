@@ -148,12 +148,6 @@ pub(crate) fn render(d: Directive) -> String {
             };
             format!("\n<div class=\"workbook-features workbook-features--{layout}\">{}</div>\n", d.body.trim())
         },
-        "code" | "terminal" | "output" => {
-            // Presentation belongs to the code renderer, not a legacy card.
-            // Retain fenced-code attributes for highlighting and line numbers.
-            let content = body_html(&d);
-            format!("\n{content}\n")
-        }
         _ => {
             let content = body_html(&d);
             let label = escape(&d.title);

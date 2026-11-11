@@ -22,14 +22,12 @@ Run `cargo --version` to check that the toolchain is accessible.
     ::: tabs
     ::: tab label="Rendered" icon=monitor
 
-    ::: code
     ```rust
     fn main(){
 
         println!("Hello there!");
     }
     ```
-    :::
     
     :::
     :::
