@@ -153,23 +153,62 @@ Evaluate optimisations after the baseline is correct and measurable.
 
 `mdbook-components` does **not** generate QR codes. If your book also enables `mdbook-qr`, place its `{{QR_CODE}}` marker in a column. The QR preprocessor replaces the marker, subject to your configured preprocessor order and marker settings.
 
-````markdown
-::: hero eyebrow="ELEE1147" heading="Programming for Engineers" tags="Rust,CLI,Build"
+::: tabs
+::: tab label="Rendered" icon=monitor
 
-::: column width=75
+::: hero eyebrow="...roll" heading="This isn't a rickroll..." tags="meme, fun, playful, original"
 
-Explore the workbook and complete the exercises.
+::: column width=70
+
+... is this where it all began?
 
 :::
 
-::: column width=25
+::: column width=30
 
 {{QR_CODE}}
 
 :::
 
 :::
+
+:::
+::: tab label="Markdown" icon=markdown
+
+````markdown
+::: hero eyebrow="...roll" heading="This isn't a rickroll..." tags="meme, fun, playful, original"
+
+::: column width=70
+
+... is this where it all began?
+
+:::
+
+::: column width=50
+
+{{ QR_CODE}}
+
+:::
+
+:::
 ````
+:::
+
+::: tab label="book.toml" icon=toml
+
+```
+[preprocessor.qr]
+enable = true
+localhost-qr = true
+url = "/path/to/some/location/somewhere"
+qr-path = "docs/src/figures/qr.png"
+width = 200
+height = 200
+
+```
+
+:::
+:::
 
 This example is shown as source rather than a live QR preview so the documentation builds even when `mdbook-qr` is not configured.
 

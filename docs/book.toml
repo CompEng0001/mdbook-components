@@ -42,3 +42,11 @@ hyperlink = true
 contributors = true
 after= [ "components" ]
 
+[preprocessor.qr]
+enable = true
+localhost-qr = true
+url = "https://github.com./compeng0001/mdbook-components/blob/main/docs/src/figures/Dockroll.jpg"
+qr-path = "docs/src/figures/qr.png"
+width = 200
+height = 200
+
