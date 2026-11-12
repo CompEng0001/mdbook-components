@@ -202,6 +202,10 @@ if (!window.MDCIcons) {
     const cls = code.getAttribute('class') || '';
     const braced = cls.match(new RegExp('\\{' + name + '=([^}]*)\\}'));
     if (braced) return braced[1];
+    // mdBook may retain fence attributes in the class list as
+    // `collapse={1-60}` rather than emitting a data-collapse attribute.
+    const wrappedValue = cls.match(new RegExp('(?:^|\\s)' + name + '=\\{([^}]*)\\}'));
+    if (wrappedValue) return `{${wrappedValue[1]}}`;
     const plain = cls.match(new RegExp('(?:^|\\s)' + name + '=([^\\s{}]+)'));
     return plain ? plain[1] : null;
   }
