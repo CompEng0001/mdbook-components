@@ -152,6 +152,9 @@ pub(crate) fn render(d: Directive) -> String {
             let content = body_html(&d);
             let label = escape(&d.title);
             let kind = match d.kind.as_str() {
+                "checklist" | "checklists" => "checklist",
+                "lo" | "los" | "learning-outcomes" | "learning-outcome"  => "lo",
+                "goal" | "bullseye" => "goal",
                 "info" | "note" => "note",
                 "important" => "important",
                 "example" => "example",

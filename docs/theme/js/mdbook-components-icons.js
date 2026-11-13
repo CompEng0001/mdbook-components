@@ -1,5 +1,5 @@
 /* mdbook-components: Devicon font adapter and generic interface icons.
-   Devicon @latest CSS must load before this script; no runtime SVG requests.
+   Devicon 2.17.0 CSS must load before this script; no runtime SVG requests.
    To add an icon: add its official Devicon name to branded below.
 */
 const MDCIcons = (() => {

@@ -1,7 +1,7 @@
 // Extracted from the original main.rs without changing the implementation.
 
 
-pub(crate) const KINDS: &[&str] = &["error", "warning", "important", "tip", "note", "goal", "example", "exercise", "info", "success", "caution", "explanation", "bug", "danger", "hero", "column", "features", "feature", "steps", "filetree", "tabs", "tab", "image"];
+pub(crate) const KINDS: &[&str] = &["checklist", "checklists", "lo","los", "goal", "learning-outcome", "learning-outcomes", "bullseye", "error", "warning", "important", "tip", "note", "goal", "example", "exercise", "info", "success", "caution", "explanation", "bug", "danger", "hero", "column", "features", "feature", "steps", "filetree", "tabs", "tab", "image"];
 
 #[derive(Debug)]
 pub(crate) struct Directive {

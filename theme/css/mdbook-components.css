@@ -440,6 +440,9 @@
 .mdc-aside--explanation { --aside-accent: #32a5b6; }
 .mdc-aside--bug { --aside-accent: #e86969; }
 .mdc-aside--danger { --aside-accent: #e86969; }
+.mdc-aside--goal { --aside-accent: #c19225;}
+.mdc-aside--lo { --aside-accent: #bc8155; }
+.mdc-aside--checklist { --aside-accent: #e5622a; }
 .mdc-aside__title {
   display: flex;
   align-items: center;

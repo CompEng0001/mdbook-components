@@ -1,11 +1,16 @@
 # Asides
 
-Asides communicate context, guidance, outcomes and problems without interrupting the main narrative. Each type has its own accent and icon. All colours remain readable against mdBook's light and dark themes.
+Asides communicate context, guidance, outcomes and problems without interrupting the main narrative. Each type has its own accent and icon. All colours remain readable against mdBook's light and dark themes. 
+
+These colours were selected via: <a href="https://chromonyms.com/">https://chromonyms.com</a>
 
 ## Types and purposes
 
 | Directive | Accent | When to use |
 | --- | --- | --- |
+| `checklist` | Flame| Checklist|
+| `lo` | Caramel | Learning outcomes|
+| `goal` | Nougat | For what you want to achieve|
 | `note`, `info` | Blue | Additional factual context |
 | `tip` | Purple | Useful practice or suggestion |
 | `explanation` | Teal | Why something happens or how it works |
@@ -14,10 +19,29 @@ Asides communicate context, guidance, outcomes and problems without interrupting
 | `bug` | Red | A defect, unexpected behaviour or debugging task |
 | `danger`,`error` `important` | Red | A serious risk or destructive action |
 
-## All seven variants
+## All eleven variants
 
 ::: tabs
 ::: tab label="Rendered" icon=monitor
+
+::: checklist title="Practical Checklist"
+- [ ] Add a component to your Markdown file.
+- [ ] Build the book using `mdbook build`.
+- [ ] Verify that the component renders correctly.
+:::
+ 
+::: lo title="Learning Outcomes"
+By the end of this section, you should be able to:
+::: steps
+1. Identify the available components.
+2. Use component syntax in Markdown.
+3. Customise component titles and styles.::
+:::
+:::
+
+::: goal title="Purpose|goal|bullseyes"
+Learn how to use `mdbook-components` to create structured, accessible and visually consistent content in your mdBook.
+:::
 
 ::: note title="Context"
 Rust variables are immutable unless explicitly declared `mut`.
@@ -56,6 +80,25 @@ Never commit private keys or API tokens to version control.
 ::: tab label="Markdown" icon=markdown
 
 ````markdown
+::: checklist title="Practical Checklist"
+- [ ] Add a component to your Markdown file.
+- [ ] Build the book using `mdbook build`.
+- [ ] Verify that the component renders correctly.
+:::
+ 
+::: lo title="Learning Outcomes"
+By the end of this section, you should be able to:
+::: steps
+1. Identify the available components.
+2. Use component syntax in Markdown.
+3. Customise component titles and styles.::
+:::
+:::
+
+::: goal title="Purpose|goal|bullseyes"
+Learn how to use `mdbook-components` to create structured, accessible and visually consistent content in your mdBook.
+:::
+
 ::: note title="Context"
 Rust variables are immutable unless explicitly declared `mut`.
 :::
